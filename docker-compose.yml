@@ -1,0 +1,60 @@
+services:
+  web-service:
+    build: web/apache
+    container_name: wosec-web
+    networks:
+        - my_network
+  
+  firewall:
+    container_name: wosec-fwl
+    build: web/firewall
+    networks:
+        - my_network
+    tty: true
+    privileged: true
+
+  ftp-server:
+    container_name: wosec-ftp
+    environment:
+      - FTP_PASS=123
+      - FTP_USER=user
+    image: garethflowers/ftp-server
+    volumes:
+      - '/data:/home/user'
+    networks:
+        - my_network
+
+  db:
+    image: mysql
+    container_name: wosec-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASS}
+    networks:
+        - my_network
+
+  samba:
+    image: dperson/samba
+    container_name: wosec-smbserver
+    environment:
+      TZ: 'EST5EDT'
+    networks:
+      - my_network
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - /mnt:/mnt:z
+      - /mnt2:/mnt2:z
+    command: '-s "Mount;/mnt" -s "Bobs Volume;/mnt2;yes;no;no;bob" -u "bob;bobspasswd" -p'
+
+networks:
+  my_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/24
