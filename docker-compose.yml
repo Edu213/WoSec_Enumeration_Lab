@@ -3,13 +3,16 @@ services:
     build: web/apache
     container_name: wosec-web
     networks:
-        - my_network
+      my_network:
+        ipv4_address: 172.18.0.12
+
   
   firewall:
     container_name: wosec-fwl
     build: web/firewall
     networks:
-        - my_network
+      my_network:
+        ipv4_address: 172.18.0.23
     tty: true
     privileged: true
 
@@ -22,7 +25,8 @@ services:
     volumes:
       - '/data:/home/user'
     networks:
-        - my_network
+      my_network:
+        ipv4_address: 172.18.0.25
 
   db:
     image: mysql
@@ -31,7 +35,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${ROOT_PASS}
     networks:
-        - my_network
+      my_network:
+        ipv4_address: 172.18.0.33
 
   samba:
     image: dperson/samba
@@ -39,7 +44,8 @@ services:
     environment:
       TZ: 'EST5EDT'
     networks:
-      - my_network
+      my_network:
+        ipv4_address: 172.18.0.38
     read_only: true
     tmpfs:
       - /tmp
